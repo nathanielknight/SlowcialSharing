@@ -24,13 +24,9 @@ internal class LobstersClient : IScraper
     public async Task<(int Score, int Comments)> FetchItemDetails(Item item)
     {
         var web = new HtmlWeb();
-        var doc = web.Load(item.guid);
+        var doc = await Task.Run(() => web.Load(item.guid));
         var scoreNode = doc.DocumentNode.SelectSingleNode("//div[@class='score']");
         return (int.Parse(scoreNode.InnerText), 0);
-
     }
-
-
-
 }
 
