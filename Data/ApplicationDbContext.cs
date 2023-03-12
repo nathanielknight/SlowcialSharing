@@ -9,4 +9,7 @@ public class ApplicationDbContext : IdentityDbContext
         : base(options)
     {
     }
+
+    public DbSet<Site> Sites { get; set; }
+    public DbSet<Item> Items { get; set; }
 }
