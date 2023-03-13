@@ -1,12 +1,14 @@
+using System.Web;
 using System.Xml.Linq;
+using HtmlAgilityPack;
 using SlowcialSharing.Data;
 
 namespace SlowcialSharing.Parsers;
 
 internal record RssItem(
-    string Title,
-    string Link,
-    string CommentsLink,
+    string? Title,
+    string? Link,
+    string? CommentsLink,
     DateTimeOffset PubDate
 );
 
@@ -20,12 +22,19 @@ internal class RssParser
     {
         var element = XElement.Load(_stream);
         var itemElements = element.Descendants("item");
+
+        string? DecodedAttribute(XElement e, string name) =>
+            HttpUtility.HtmlDecode((string)e.Element(name));
+
+        DateTimeOffset DateTime(XElement e) =>
+            DateTimeOffset.Parse((string)e.Element("pubDate")).ToUniversalTime();
+
         return itemElements.Select(e =>
             new RssItem(
-                Title: (string)e.Element("title"),
-                Link: (string)e.Element("link"),
-                CommentsLink: (string)e.Element("comments"),
-                PubDate: DateTimeOffset.Parse((string)e.Element("pubDate")).ToUniversalTime()
+                Title: DecodedAttribute(e, "title"),
+                Link: DecodedAttribute(e, "link"),
+                CommentsLink: DecodedAttribute(e, "comments"),
+                PubDate: DateTime(e)
             )
         );
     }
