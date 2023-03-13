@@ -25,7 +25,8 @@ public class SummaryService
             .Where(i =>
                 i.PubDate >= startTime
                 && i.PubDate < endTime
-        );
+            )
+            .OrderByDescending(i => (i.Score, i.PubDate));
         if (items.Count() > 0)
         {
             _logger.LogInformation($"Found {items.Count()} {site.Name} items where {startTime} < pubdate < {endTime}");
