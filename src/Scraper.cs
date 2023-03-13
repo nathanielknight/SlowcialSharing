@@ -29,8 +29,17 @@ class Scraper
     private async Task FetchNewItems()
     {
         _logger.LogInformation("Fetching new items from lobste.rs");
+
         var lobstersClient = new Clients.LobstersClient(_context, _logger);
-        foreach (var item in await lobstersClient.FetchNewItems())
+        SaveItems(await lobstersClient.FetchNewItems());
+
+        var hackerNewsClient = new Clients.HackerNewsClient(_context, _logger);
+        SaveItems(await hackerNewsClient.FetchNewItems());
+    }
+
+    private void SaveItems(IEnumerable<Item> items)
+    {
+        foreach (var item in items)
         {
             if (_context.Items.Any(i => i.Key == item.Key))
             {
@@ -39,6 +48,7 @@ class Scraper
             _context.Items.Add(item);
         }
         _context.SaveChanges();
+
     }
 
     private async Task FetchItemDetails()
@@ -47,8 +57,10 @@ class Scraper
         _logger.LogInformation($"Retrieving item details for {items.Count()} ready items");
         foreach (var item in items)
         {
-            var client = item.Site.Name switch {
+            Clients.IScraper? client = item.Site.Name switch
+            {
                 "lobste.rs" => new Clients.LobstersClient(_context, _logger),
+                "news.ycombinator.com" => new Clients.HackerNewsClient(_context, _logger),
                 _ => null,
             };
             if (client is null)
