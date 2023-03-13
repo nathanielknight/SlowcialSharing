@@ -14,6 +14,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages();
 builder.Services.AddHostedService<SlowcialSharing.ScrapingWorker>();
+builder.Services.AddScoped<SlowcialSharing.Summary.SummaryService>();
 
 var app = builder.Build();
 
