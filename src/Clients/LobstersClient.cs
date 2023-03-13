@@ -6,12 +6,12 @@ namespace SlowcialSharing.Clients;
 
 internal class LobstersClient : IScraper
 {
-    private ApplicationDbContext _context;
     private Site _site;
-    LobstersClient(ApplicationDbContext context)
+    private readonly ILogger _logger;
+    public LobstersClient(ApplicationDbContext context, ILogger logger)
     {
         _site = context.Sites.Where(s => s.Name == "lobste.rs").First();
-        _context = context;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<Item>> FetchNewItems()
@@ -26,7 +26,17 @@ internal class LobstersClient : IScraper
         var web = new HtmlWeb();
         var doc = await Task.Run(() => web.Load(item.guid));
         var scoreNode = doc.DocumentNode.SelectSingleNode("//div[@class='score']");
-        return (int.Parse(scoreNode.InnerText), 0);
+        int score, comments = 0;
+        if (scoreNode is null)
+        {
+            _logger.LogWarning($"Missing scorenode for item: ${item.guid}");
+            score = 0;
+        }
+        else
+        {
+            score = int.Parse(scoreNode.InnerText);
+        }
+        return (score, comments);
     }
 }
 
