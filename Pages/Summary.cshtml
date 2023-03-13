@@ -5,7 +5,7 @@
 
 <p>
     Summary of
-    <a href="@Model.site.Url">@Model.site.Name</a>
+    <a href="@Model.site.HomePageUrl">@Model.site.Name</a>
     for
     <span id="startTime">@Model.summary.startTime</span>
     to
@@ -22,7 +22,7 @@ else
     @foreach (var item in @Model.summary.items)
     {
         <li class="item">
-            <a href="@item.guid">@item.Title</a>
+            <a href="@item.Link">@item.Title</a>
         </li>
     }
 </ul>

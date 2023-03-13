@@ -32,7 +32,7 @@ class Scraper
         var lobstersClient = new Clients.LobstersClient(_context, _logger);
         foreach (var item in await lobstersClient.FetchNewItems())
         {
-            if (_context.Items.Any(i => i.guid == item.guid))
+            if (_context.Items.Any(i => i.Key == item.Key))
             {
                 continue;
             }
