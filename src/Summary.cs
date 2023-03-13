@@ -1,6 +1,8 @@
 using SlowcialSharing.Data;
+using SlowcialSharing.Schedule;
 
 namespace SlowcialSharing.Summary;
+
 
 public class SummaryService
 {
@@ -38,14 +40,8 @@ public class SummaryService
         return new Summary(startTime: startTime, endTime: endTime, items: items);
     }
 
-    private (DateTimeOffset, DateTimeOffset) CutOffs()
-    {
-        DateTime todayUtc = DateTime.UtcNow.Date;
-        DateTimeOffset prevMidnight = new DateTimeOffset(todayUtc.Year, todayUtc.Month, todayUtc.Day, 0, 0, 0, TimeSpan.Zero);
-        DateTimeOffset pprevMidnight = prevMidnight - TimeSpan.FromDays(1);
-        return (pprevMidnight, prevMidnight);
-    }
-
+    private (DateTimeOffset, DateTimeOffset) CutOffs() =>
+        UpdateSchedule.LastUpdateBounds;
 }
 
 public record Summary(DateTimeOffset startTime, DateTimeOffset endTime, IEnumerable<Item>? items);

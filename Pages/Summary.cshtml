@@ -1,15 +1,17 @@
 ﻿@page "{siteName}"
+@using System.Globalization;
 @model SlowcialSharing.Pages.SummaryModel
 @{
+    ViewData["Title"] = @Model.site.Name;
+    string DateTimeISO(DateTimeOffset dt) =>
+    dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
 }
-
+<h2><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
 <p>
-    Summary of
-    <a href="@Model.site.HomePageUrl">@Model.site.Name</a>
-    for
-    <span id="startTime">@Model.summary.startTime</span>
+    From
+    <span id="startTime" data-datetime=@DateTimeISO(@Model.summary.startTime)>@Model.summary.startTime</span>
     to
-    <span id="endTime">@Model.summary.endTime</span>
+    <span id="endTime" data-datetime=@DateTimeISO(@Model.summary.endTime)>@Model.summary.endTime</span>
 </p>
 
 @if (@Model.summary.items is null)
@@ -18,11 +20,12 @@
 }
 else
 {
-<ul>
+    <ul>
     @foreach (var item in @Model.summary.items)
-    {
-        <partial name="Shared/_Item" for="@item" />
-    }
-</ul>
+        {
+            <partial name="Shared/_Item" for="@item" />
+        }
+    </ul>
 }
 
+<script src="/js/formatDates.js"></script>

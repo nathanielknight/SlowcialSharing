@@ -1,0 +1,65 @@
+@page
+@using SlowcialSharing.Schedule;
+@using System.Globalization;
+@{
+    ViewData["Title"] = "About";
+
+    var (startTime, endTime) = UpdateSchedule.LastUpdateBounds;
+
+    string DateTimeISO(DateTimeOffset dt) =>
+    dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
+
+    void DateTimeTableData(DateTimeOffset dt)
+    {
+        <td data-datetime="@DateTimeISO(dt)">@dt</td>
+    }
+}
+
+<p>
+    Slowcial Sharing subscribes to the RSS feeds of social link sharing sites and
+    presents their content one day at a time, and with a slight time offset.
+    This lets you keep up with things as they're shared, but without the
+    addictive dopamine hit that you get from subscribing in real time.
+</p>
+
+<p>
+    Sites are checked for new shared links every hour; link scores and comment
+    counts are saved 24 hours after the link is posted. A new batch of links is
+    presented every midnight UTC.
+</p>
+
+<table>
+    <tbody>
+        <tr>
+            <th>Last Update</th>
+            @{
+                DateTimeTableData(UpdateSchedule.LastUpdate);
+            }
+        </tr>
+        <tr>
+            <th>Next Update</th>
+            @{
+                DateTimeTableData(@UpdateSchedule.NextUpdate);
+            }
+        </tr>
+        <tr>
+            <th>Current summary start time</th>
+            @{
+                DateTimeTableData(@startTime);
+            }
+        </tr>
+        <tr>
+            <th>Current summary end time</th>
+            @{
+                DateTimeTableData(@endTime);
+            }
+        </tr>
+    </tbody>
+</table>
+
+<p>
+    Backend in <a href="https://dotnet.microsoft.com/en-us/apps/aspnet">ASP.NET</a>.
+    Styled by <a href="https://holidaycss.js.org/">Holiday CSS</a>.
+</p>
+
+<script src="/js/formatDates.js"></script>

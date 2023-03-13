@@ -1,7 +1,14 @@
 @model Item
+@using System.Globalization;
+@{
+    string DateTimeISO(DateTimeOffset dt) =>
+    dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
+}
 <li class="item">
     <p class="title"><a href="@Model.Link">@Model.Title</a></p>
     <p class="meta">
-        @Model.Score points | <a href="@Model.CommentsLink">@Model.Comments comments</a>
+        @Model.Score points
+        | published <span data-datetime="@DateTimeISO(@Model.PubDate)">@Model.PubDate</span>
+        | <a href="@Model.CommentsLink">@Model.Comments comments</a>
     </p>
 </li>
