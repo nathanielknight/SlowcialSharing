@@ -5,14 +5,18 @@ namespace SlowcialSharing.Summary;
 public class SummaryService
 {
     private readonly ApplicationDbContext _context;
-    public SummaryService(ApplicationDbContext context)
+    private readonly ILogger<SummaryService> _logger;
+    public SummaryService(ApplicationDbContext context, ILogger<SummaryService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
-    public IEnumerable<Item>? SummaryFor(Site site)
+    public Summary SummaryFor(Site site)
     {
-        (var startTime, var endTime) = CutOffs();
+        (DateTimeOffset startTime, DateTimeOffset endTime) = CutOffs();
+        _logger.LogInformation($"Finding {site.Name} items between {startTime} and {endTime}");
+        // TODO: replace this with a SQL query to avoid loading the whole table.
         var items = _context.Items
             .Where(i =>
                 i.Site == site
@@ -24,20 +28,23 @@ public class SummaryService
         );
         if (items.Count() > 0)
         {
-            return items;
+            _logger.LogInformation($"Found {items.Count()} {site.Name} items where {startTime} < pubdate < {endTime}");
         }
         else
         {
-            return null;
+            _logger.LogInformation($"No items for {site.Name} where {startTime} < pubdate < {endTime}");
         }
+        return new Summary(startTime: startTime, endTime: endTime, items: items);
     }
 
     private (DateTimeOffset, DateTimeOffset) CutOffs()
     {
-        var prevMidnight = DateTimeOffset.UtcNow.Date;
-        var pprevMidnight = prevMidnight - TimeSpan.FromDays(1);
-        var ppprevMidnight = pprevMidnight - TimeSpan.FromDays(1);
-        return (ppprevMidnight, pprevMidnight);
+        DateTime todayUtc = DateTime.UtcNow.Date;
+        DateTimeOffset prevMidnight = new DateTimeOffset(todayUtc.Year, todayUtc.Month, todayUtc.Day, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset pprevMidnight = prevMidnight - TimeSpan.FromDays(1);
+        return (pprevMidnight, prevMidnight);
     }
 
 }
+
+public record Summary(DateTimeOffset startTime, DateTimeOffset endTime, IEnumerable<Item>? items);

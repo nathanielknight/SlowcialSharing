@@ -1,20 +1,28 @@
 ﻿@page "{siteName}"
 @model SlowcialSharing.Pages.SummaryModel
 @{
-    var items = @Model.Items;
 }
 
-@if (items is null)
+<p>
+    Summary of
+    <a href="@Model.site.Url">@Model.site.Name</a>
+    for
+    <span id="startTime">@Model.summary.startTime</span>
+    to
+    <span id="endTime">@Model.summary.endTime</span>
+</p>
+
+@if (@Model.summary.items is null)
 {
-    <p>No summary for @Model.siteName yet.</p>
+    <p>No items for @Model.siteName yet.</p>
 }
-else 
+else
 {
 <ul>
-    @foreach (var item in @Model.Items)
+    @foreach (var item in @Model.summary.items)
     {
         <li class="item">
-            @item.ToString()
+            <a href="@item.guid">@item.Title</a>
         </li>
     }
 </ul>

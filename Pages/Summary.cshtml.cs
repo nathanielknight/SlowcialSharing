@@ -11,7 +11,8 @@ public class SummaryModel : PageModel
     private Summary.SummaryService _summarize;
 
     public string siteName { get; set; }
-    public Site site {get; set;}
+    public Site site { get; set; }
+    public Summary.Summary summary { get; set; }
 
     public SummaryModel(ApplicationDbContext context, ILogger<SummaryModel> logger, Summary.SummaryService summarize)
     {
@@ -22,16 +23,13 @@ public class SummaryModel : PageModel
     public IActionResult OnGet(string siteName)
     {
         this.siteName = siteName;
-        var site = _context.Sites.Where(site => site.Name == siteName).First();
+        site = _context.Sites.Where(site => site.Name == siteName).First();
+        summary = _summarize.SummaryFor(site);
+
         if (site is null)
         {
             return NotFound();
         }
         return Page();
-    }
-
-    public IEnumerable<Item> Items
-    {
-        get => _summarize.SummaryFor(site);
     }
 }
