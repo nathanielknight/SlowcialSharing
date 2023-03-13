@@ -68,6 +68,6 @@ class Scraper
         _context.Items
             .Where(i => i.Score == null)
             .AsEnumerable()  // execute the rest client side so we can use dates
-            .Where(item => item.PubDate > DateTimeOffset.UtcNow - OneDay);
+            .Where(item => item.PubDate < DateTimeOffset.UtcNow - OneDay);
 
 }
