@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using SlowcialSharing.Data;
 using SlowcialSharing.Parsers;
@@ -52,7 +53,19 @@ internal class LobstersClient : IScraper
         {
             score = int.Parse(scoreNode.InnerText);
         }
+
+        var commentNodes = doc.DocumentNode.SelectNodes("//div")
+            ?.Where(IsCommentNode);
+        comments = commentNodes?.Count() ?? 0;
         return (score, comments);
+    }
+
+    private bool IsCommentNode(HtmlNode node)
+    {
+        string classes = node.Attributes["class"]?.Value ?? "";
+        string pattern = @"\bcomment\b";
+        RegexOptions options = RegexOptions.IgnoreCase;
+        return Regex.IsMatch(classes, pattern, options);
     }
 }
 
