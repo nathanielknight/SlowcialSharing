@@ -2,7 +2,7 @@ using SlowcialSharing.Data;
 
 namespace SlowcialSharing.Summary;
 
-class SummaryService
+public class SummaryService
 {
     private readonly ApplicationDbContext _context;
     public SummaryService(ApplicationDbContext context)
@@ -17,7 +17,9 @@ class SummaryService
             .Where(i =>
                 i.Site == site
                 && i.Score != null
-                && i.PubDate >= startTime
+            ).AsEnumerable()
+            .Where(i =>
+                i.PubDate >= startTime
                 && i.PubDate < endTime
         );
         if (items.Count() > 0)
