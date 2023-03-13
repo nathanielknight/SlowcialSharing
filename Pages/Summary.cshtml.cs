@@ -24,12 +24,12 @@ public class SummaryModel : PageModel
     {
         this.siteName = siteName;
         site = _context.Sites.Where(site => site.Name == siteName).First();
-        summary = _summarize.SummaryFor(site);
-
         if (site is null)
         {
             return NotFound();
         }
+        summary = _summarize.SummaryFor(site);
+
         return Page();
     }
 }

@@ -56,7 +56,8 @@ internal class LobstersClient : IScraper
 
         var commentNodes = doc.DocumentNode.SelectNodes("//div")
             ?.Where(IsCommentNode);
-        comments = commentNodes?.Count() ?? 0;
+        // Subtract 1 because the comment box also matches `div.comment`
+        comments = commentNodes?.Count() - 1 ?? 0;
         return (score, comments);
     }
 
