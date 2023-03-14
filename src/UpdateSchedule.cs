@@ -12,7 +12,7 @@ public static class UpdateSchedule
     {
         get
         {
-            var endTime = LastUpdate;
+            var endTime = LastUpdate - OneDay;
             var startTime = endTime - OneDay;
             return (startTime, endTime);
         }
