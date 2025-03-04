@@ -10,20 +10,12 @@ defmodule SlowcialsharingWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", SlowcialsharingWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/About", AboutController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", SlowcialsharingWeb do
-  #   pipe_through :api
-  # end
 
   # Enable LiveDashboard in development
   if Application.compile_env(:slowcialsharing, :dev_routes) do

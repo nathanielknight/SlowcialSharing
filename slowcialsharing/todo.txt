@@ -1,0 +1,11 @@
+implement item parsing (from rss)
+implement item fetching
+implement item fetch scheduling
+implement item saving
+implement score parsing (as behaviour?)
+implement score fetching
+implement score fetch scheduling
+implement score saving
+homepage view
+site summary
+about page w. schedules
