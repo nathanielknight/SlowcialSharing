@@ -11,8 +11,7 @@ defmodule Slowcialsharing.Application do
       SlowcialsharingWeb.Telemetry,
       Slowcialsharing.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:slowcialsharing, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:slowcialsharing, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:slowcialsharing, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Slowcialsharing.PubSub},
       # Start a worker by calling: Slowcialsharing.Worker.start_link(arg)

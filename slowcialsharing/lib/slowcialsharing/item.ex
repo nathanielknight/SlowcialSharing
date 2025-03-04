@@ -15,7 +15,6 @@ defmodule Slowcialsharing.Item do
     timestamps(type: :utc_datetime)
   end
 
-
   @doc false
   def changeset(item, attrs) do
     item

@@ -35,9 +35,9 @@ defmodule Slowcialsharing.RssFeedParser do
     {"pubdate", _, [pubdate_src]} = find_element(children, "pubdate")
     parsed = RFC822DateParser.parse_date(pubdate_src)
 
-IO.inspect(parsed)
-    
-{:ok, pubdate} = parsed
+    IO.inspect(parsed)
+
+    {:ok, pubdate} = parsed
     %{link: link, title: title, key: key, commentslink: commentslink, pubdate: pubdate}
   end
 
