@@ -52,14 +52,16 @@ defmodule Slowcialsharing.RssFeedParserTest do
                commentslink: "https://lobste.rs/s/np4prk/use_firefox_2025",
                key: "https://lobste.rs/s/np4prk",
                link: "https://alexn.org/blog/2025/03/03/use-firefox/",
-               title: "Use Firefox in 2025"
+               title: "Use Firefox in 2025",
+               pubdate: ~U[2025-03-03 22:14:12Z]
              },
              %{
                commentslink: "https://lobste.rs/s/epok9v/apple_s_software_quality_crisis_when",
                key: "https://lobste.rs/s/epok9v",
                link: "https://www.eliseomartelli.it/blog/2025-03-02-apple-quality",
                title:
-                 "Apple's Software Quality Crisis: When Premium Hardware Meets Subpar Software"
+                 "Apple's Software Quality Crisis: When Premium Hardware Meets Subpar Software",
+               pubdate: ~U[2025-03-03 08:10:07Z]
              }
            ]
   end
