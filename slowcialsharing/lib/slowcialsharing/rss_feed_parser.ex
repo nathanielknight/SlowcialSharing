@@ -1,7 +1,8 @@
 defmodule Slowcialsharing.RssFeedParser do
+  alias Slowcialsharing.Item
 
   @doc "Parse the items from an RSS feed (as a string)."
-  @spec parse_feed(String.t()) :: map()
+  @spec parse_feed(String.t()) :: list(map())
   def parse_feed(feed) do
     case Floki.parse_document(feed) do
       {:ok, doc} ->
@@ -12,7 +13,24 @@ defmodule Slowcialsharing.RssFeedParser do
     end
   end
 
-  def get_items_from_rss(doc) do
+  # TODO: type
+  @doc "Create Items from a site's RSS feed."
+  def parse_site_feed(site, rss_feed) do
+    {:ok, items} = parse_feed(rss_feed)
+
+    site_items =
+      for rss_item <- items do
+        item = Map.put(rss_item, :site_id, site.id)
+        Item.changeset(%Item{}, item)
+      end
+
+    case Enum.all?(site_items, fn item -> item.valid? end) do
+      true -> {:ok, site_items}
+      false -> {:err, site_items}
+    end
+  end
+
+  defp get_items_from_rss(doc) do
     case Floki.find(doc, "rss") do
       [{"rss", _, _}] ->
         get_items(doc)
@@ -22,7 +40,7 @@ defmodule Slowcialsharing.RssFeedParser do
     end
   end
 
-  def get_items(doc) do
+  defp get_items(doc) do
     rss_items = Floki.find(doc, "item")
     items = for rss_item <- rss_items, do: parse_item(rss_item)
     {:ok, items}

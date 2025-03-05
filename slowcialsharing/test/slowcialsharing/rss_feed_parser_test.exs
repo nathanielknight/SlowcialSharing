@@ -1,4 +1,4 @@
-defmodule Slowcialsharing.RssItemParserTest do
+defmodule Slowcialsharing.RssFeedParserTest do
   alias Slowcialsharing.RssFeedParser
   use ExUnit.Case
 
@@ -40,10 +40,6 @@ defmodule Slowcialsharing.RssItemParserTest do
   </rss>
   """
 
-  def rss_feed() do
-    @rss_feed
-  end
-
   test "reports nonsense input" do
     {:error, _} = RssFeedParser.parse_feed("")
   end
@@ -68,5 +64,18 @@ defmodule Slowcialsharing.RssItemParserTest do
                pubdate: ~U[2025-03-03 08:10:07Z]
              }
            ]
+  end
+
+  test "it parses rss feeds and adds site info" do
+    fake_site_id = 3
+
+    {:ok, items} =
+      RssFeedParser.parse_site_feed(
+        %{id: fake_site_id},
+        @rss_feed
+      )
+
+    [item | _] = items
+    assert item.changes.site_id == fake_site_id
   end
 end
