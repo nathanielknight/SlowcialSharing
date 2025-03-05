@@ -1,13 +1,14 @@
 defmodule Slowcialsharing.RssFeedParser do
-  alias Slowcialsharing.Item
 
+  @doc "Parse the items from an RSS feed (as a string)."
+  @spec parse_feed(String.t()) :: map()
   def parse_feed(feed) do
     case Floki.parse_document(feed) do
       {:ok, doc} ->
         get_items_from_rss(doc)
 
       {:error, reason} ->
-        {:error, "RSS parsing failed: ${inspect(reason)}"}
+        {:error, "RSS parsing failed: #{inspect(reason)}"}
     end
   end
 
@@ -34,8 +35,6 @@ defmodule Slowcialsharing.RssFeedParser do
     {"comments", _, [commentslink]} = find_element(children, "comments")
     {"pubdate", _, [pubdate_src]} = find_element(children, "pubdate")
     parsed = RFC822DateParser.parse_date(pubdate_src)
-
-    IO.inspect(parsed)
 
     {:ok, pubdate} = parsed
     %{link: link, title: title, key: key, commentslink: commentslink, pubdate: pubdate}

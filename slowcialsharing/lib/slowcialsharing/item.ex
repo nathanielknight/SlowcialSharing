@@ -18,8 +18,8 @@ defmodule Slowcialsharing.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:key, :title, :link, :pubdate, :commentslink, :score, :comments])
-    |> validate_required([:key, :title, :link, :pubdate, :commentslink, :comments, :site_id])
+    |> cast(attrs, [:key, :title, :link, :pubdate, :commentslink, :score, :comments, :site_id])
+    |> validate_required([:key, :title, :link, :pubdate, :commentslink, :site_id])
     |> unique_constraint(:key)
   end
 end
