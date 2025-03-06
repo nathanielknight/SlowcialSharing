@@ -7,12 +7,7 @@
     var (startTime, endTime) = UpdateSchedule.LastUpdateBounds;
 
     string DateTimeISO(DateTimeOffset dt) =>
-    dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
-
-    void DateTimeTableData(DateTimeOffset dt)
-    {
-        <td data-datetime="@DateTimeISO(dt)">@dt</td>
-    }
+      dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
 }
 
 <p>
@@ -29,33 +24,36 @@
     presented every midnight UTC.
 </p>
 
-<table>
-    <tbody>
-        <tr>
-            <th>Last Update</th>
-            @{
-                DateTimeTableData(UpdateSchedule.LastUpdate);
-            }
-        </tr>
-        <tr>
-            <th>Next Update</th>
-            @{
-                DateTimeTableData(@UpdateSchedule.NextUpdate);
-            }
-        </tr>
-        <tr>
-            <th>Current summary start time</th>
-            @{
-                DateTimeTableData(@startTime);
-            }
-        </tr>
-        <tr>
-            <th>Current summary end time</th>
-            @{
-                DateTimeTableData(@endTime);
-            }
-        </tr>
-    </tbody>
-</table>
+<details>
+<summary>
+    <strong>Last Update:</strong>
+    <span data-datetime="@DateTimeISO(UpdateSchedule.LastUpdate)">@UpdateSchedule.LastUpdate</span>
+</summary>
+<p class="textmin">When the current summaries appeared.</p>
+</details>
+
+<details>
+<summary>
+    <strong>Next Update:</strong>
+    <span data-datetime="@DateTimeISO(UpdateSchedule.NextUpdate)">@UpdateSchedule.NextUpdate</span>
+</summary>
+<p class="textmin">When new links will drop.</p>
+</details>
+
+<details>
+<summary>
+    <strong>Summary Start:</strong>
+    <span data-datetime="@DateTimeISO(startTime)">@startTime</span>
+</summary>
+<p class="textmin">When the currently published links started appearing.</p>
+</details>
+
+<details>
+<summary>
+    <strong>Summary End:</strong>
+    <span data-datetime="@DateTimeISO(UpdateSchedule.NextUpdate)">@UpdateSchedule.NextUpdate</span>
+</summary>
+<p class="textmin">The cutoff for links that are currently published.</p>
+</details>
 
 <script src="/js/formatDates.js"></script>

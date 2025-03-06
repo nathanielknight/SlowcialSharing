@@ -34,8 +34,20 @@ body {
 h1 { font-size: 120%; margin: 0.1em 0; }
 h2 { font-size: 110%; margin: 0.1em 0; }
 
+p { margin: 1em 0;}
+
 a { color: inherit; text-decoration: underline; text-decoration-color: #266106; }
 a:hover { text-decoration-style: dotted}
+
+details {
+  margin: 1em 0;
+  padding: 0.6em 0.4em;
+  background-color: #111;
+  p {margin: 0.5em 0 0;}
+  strong { display: inline-block; width: 7em;}
+  span {display: inline-block;}
+  
+}
 
 header {
   display: flex;
@@ -52,8 +64,6 @@ footer {
   text-align: center;
 }
 
-p {margin: 0}
-
 
 /* Lists */
 li {
@@ -62,7 +72,7 @@ li {
   margin: 1.5em 0; 
 
   p {
-    margin-top: 0.2em;
+    margin: 0.2em 0 0 0 ;
   }
 }
 
