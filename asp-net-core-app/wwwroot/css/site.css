@@ -31,8 +31,8 @@ body {
   }
 }
 
-h1 { font-size: 120%; }
-h2 { font-size: 110%; margin: 0.4em 0;}
+h1 { font-size: 120%; margin: 0.1em 0; }
+h2 { font-size: 110%; margin: 0.1em 0; }
 
 a { color: inherit; text-decoration: underline; text-decoration-color: #266106; }
 a:hover { text-decoration-style: dotted}

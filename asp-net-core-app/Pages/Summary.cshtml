@@ -7,7 +7,7 @@
     dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
 }
 
-<h2 class="sitename" style="font-size: 200% !important; margin-bottom: 0.1em;"><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
+<h2 class="sitename" style="font-size: 200% !important; margin-top: 0.5em;"><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
 <p class="textmin">
     From
     <span id="startTime" data-datetime=@DateTimeISO(@Model.summary.startTime)>@Model.summary.startTime</span>
