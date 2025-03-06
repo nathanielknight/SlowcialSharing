@@ -5,35 +5,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SlowcialSharing</title>
-    <link rel="stylesheet" href="~/lib/holiday.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SlowcialSharing.styles.css" asp-append-version="true" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐌</text></svg>">
 </head>
 
 <body>
     <header>
-        <h1>Slowcial Sharing</h1>
-        <nav>
-            <ul>
-                <li><a asp-page="/Index">Home</a></li>
-                <li><span>Pages</span>
-                    <ul id="sites">
-                        <li><a asp-page="/Summary" asp-route-siteName="lobste.rs">Lobsters</a></li>
-                        <li><a asp-page="/Summary" asp-route-siteName="news.ycombinator.com">Hacker News</a></li>
-                    </ul>
-                </li>
-                <li><a asp-page="/About">About</a></li>
-            </ul>
-        </nav>
+        <a asp-page="/Index"><h1>Slowcial Sharing</h1></a>
+        <a asp-page="/About">About</a>
     </header>
+    <p class="textmin">Time-delayed mirrors of social news sites.</p>
 
-    <main role="main" class="pb-3">
+    <main role="main">
         @RenderBody()
     </main>
 
-    <footer>
-        A project by <a href="https://nathanielknight.ca">Nat Knight</a>
+    <footer style="padding-top: 3em;"> 
+        A project by <a href="https://nathanielknight.ca">Nat Knight</a> ♘
     </footer>
 
     <script src="~/js/site.js" asp-append-version="true"></script>

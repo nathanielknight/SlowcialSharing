@@ -1,27 +1,88 @@
+/* Layout & Typography */
 html {
-  font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+  font-family:  -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+  font-size: clamp(12px, 12px + 0.4vw, 16px);
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
+
+
+body {
+  margin: 0 auto;
+  max-width: 40em;
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  padding: 1em 0.5em;
+  
+  color: #222;
+  background-color: #fefefe;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #fefefe;
+    background-color: #222;
   }
 }
 
-.btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
-.form-control:focus,
-.form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+h1 { font-size: 120%; }
+h2 { font-size: 110%; margin: 0.4em 0;}
+
+a { color: inherit; text-decoration: underline; text-decoration-color: #266106; }
+a:hover { text-decoration-style: dotted}
+
+header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+
+  font-weight: 900;
+  h1 { font-weight: 900; }
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+footer {
+  margin-top: auto;
+  text-align: center;
 }
 
-body {
-  margin-bottom: 60px;
+p {margin: 0}
+
+
+/* Lists */
+li {
+  list-style: none;
+  display: block;
+  margin: 1.5em 0; 
+
+  p {
+    margin-top: 0.2em;
+  }
+}
+
+ul { padding: 0; margin: 0.5em 0;}
+
+ul#sitelist {
+  margin-top: 3em;
+  li { font-size: 200%; margin: 1.4em 0; }
+}
+
+
+/* Utility */
+.textmin {
+  font-size: 80%;
+  color: #444;
+}
+@media (prefers-color-scheme: dark) {
+  .textmin { color: #ccc; }
+}
+
+.sitename {
+  font-weight: 700;
 }

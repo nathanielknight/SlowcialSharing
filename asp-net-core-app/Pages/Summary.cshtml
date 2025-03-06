@@ -6,8 +6,9 @@
     string DateTimeISO(DateTimeOffset dt) =>
     dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
 }
-<h2><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
-<p>
+
+<h2 class="sitename" style="font-size: 200% !important; margin-bottom: 0.1em;"><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
+<p class="textmin">
     From
     <span id="startTime" data-datetime=@DateTimeISO(@Model.summary.startTime)>@Model.summary.startTime</span>
     to
@@ -20,7 +21,7 @@
 }
 else
 {
-    <ul>
+    <ul style="margin-top: 2.4em;">
     @foreach (var item in @Model.summary.items)
         {
             <partial name="Shared/_Item" for="@item" />

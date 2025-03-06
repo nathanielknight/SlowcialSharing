@@ -3,12 +3,25 @@
 @{
     string DateTimeISO(DateTimeOffset dt) =>
     dt.ToString("yyyy-MM-ddTHH:mm:ss.sssZ", CultureInfo.InvariantCulture);
+
+    string domain = "";
+    try
+    {
+        Uri uri = new Uri(@Model.Link);
+        domain = "http://" + uri.Host;
+    }
+    catch (UriFormatException)
+    {
+        // do nothing
+    }
+    
 }
 <li class="item">
-    <p class="title"><a href="@Model.Link">@Model.Title</a></p>
-    <p class="meta">
+    <p style="font-size: 110%"><a href="@Model.Link">@Model.Title</a></p>
+    <p class="textmin"><a href="@domain">@domain</a></p>
+    <p class="textmin">
         @Model.Score points
-        | published <span data-datetime="@DateTimeISO(@Model.PubDate)">@Model.PubDate</span>
         | <a href="@Model.CommentsLink">@Model.Comments comments</a>
+        | <span data-datetime="@DateTimeISO(@Model.PubDate)">@Model.PubDate</span>
     </p>
 </li>
