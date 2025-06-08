@@ -8,7 +8,29 @@
 }
 
 <h2 class="sitename" style="font-size: 200% !important; margin-top: 0.5em;"><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
+
+<div id="datecontrols" style="margin-bottom: 1em;">
+    <form method="get" style="display: inline-block;">
+        <label for="date" style="margin-right: 0.5em;">View links for:</label>
+        <input type="date" id="date" name="date" value="@(Model.selectedDate?.ToString("yyyy-MM-dd") ?? "")" 
+               style="margin-right: 0.5em;" />
+        <button type="submit">Go</button>
+        @if (Model.selectedDate.HasValue)
+        {
+            <a href="/Summary/@Model.siteName" style="margin-left: 0.5em;" class="textmin">Go to latest</a>
+        }
+    </form>
+</div>
+
 <p class="textmin">
+    @if (Model.selectedDate.HasValue)
+    {
+        <text>Showing summary for @Model.selectedDate.Value.ToString("yyyy-MM-dd") | </text>
+    }
+    else
+    {
+        <text>Current summary | </text>
+    }
     From
     <span id="startTime" data-datetime=@DateTimeISO(@Model.summary.startTime)>@Model.summary.startTime</span>
     to

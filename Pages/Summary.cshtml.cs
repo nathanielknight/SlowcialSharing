@@ -13,6 +13,7 @@ public class SummaryModel : PageModel
     public string siteName { get; set; }
     public Site site { get; set; }
     public Summary.Summary summary { get; set; }
+    public DateOnly? selectedDate { get; set; }
 
     public SummaryModel(ApplicationDbContext context, ILogger<SummaryModel> logger, Summary.SummaryService summarize)
     {
@@ -20,7 +21,7 @@ public class SummaryModel : PageModel
         _logger = logger;
         _summarize = summarize;
     }
-    public IActionResult OnGet(string siteName)
+    public IActionResult OnGet(string siteName, string? date = null)
     {
         this.siteName = siteName;
         site = _context.Sites.Where(site => site.Name == siteName).First();
@@ -28,7 +29,15 @@ public class SummaryModel : PageModel
         {
             return NotFound();
         }
-        summary = _summarize.SummaryFor(site);
+
+        DateOnly? parsedDate = null;
+        if (!string.IsNullOrEmpty(date) && DateOnly.TryParse(date, out var validDate))
+        {
+            parsedDate = validDate;
+        }
+        selectedDate = parsedDate;
+
+        summary = _summarize.SummaryFor(site, parsedDate);
 
         return Page();
     }
