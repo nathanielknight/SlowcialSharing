@@ -42,11 +42,15 @@ internal class LobstersClient : IScraper
     {
         var web = new HtmlWeb();
         var doc = await Task.Run(() => web.Load(item.CommentsLink));
-        var scoreNode = doc.DocumentNode.SelectSingleNode("//div[@class='score']");
+        return GetScoreAndComments(doc.DocumentNode);
+    }
+
+    public static (int Score, int Comments) GetScoreAndComments(HtmlNode documentNode)
+    {
+        var scoreNode = documentNode.SelectSingleNode("//div[contains(@class, 'story_liner')]//div[contains(@class, 'voters')]//a[contains(@class, 'upvoter')]");
         int score, comments = 0;
         if (scoreNode is null)
         {
-            _logger.LogWarning($"Missing score node for item: ${item.CommentsLink}");
             score = 0;
         }
         else
@@ -54,14 +58,14 @@ internal class LobstersClient : IScraper
             score = int.Parse(scoreNode.InnerText);
         }
 
-        var commentNodes = doc.DocumentNode.SelectNodes("//div")
+        var commentNodes = documentNode.SelectNodes("//div")
             ?.Where(IsCommentNode);
         // Subtract 1 because the comment box also matches `div.comment`
-        comments = commentNodes?.Count() - 1 ?? 0;
+        comments = Math.Max(0, (commentNodes?.Count() ?? 0) - 1);
         return (score, comments);
     }
 
-    private bool IsCommentNode(HtmlNode node)
+    private static bool IsCommentNode(HtmlNode node)
     {
         string classes = node.Attributes["class"]?.Value ?? "";
         string pattern = @"\bcomment\b";

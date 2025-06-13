@@ -6,11 +6,11 @@ set -e
 rm -f sloshar.tar
 
 # Build image
-docker build --platform amd64 --tag "sloshar" --file Dockerfile .
+finch build --network host --platform amd64 --tag "sloshar" --file Dockerfile .
 
 # Export image
-# NOTE: Docker does it's own compression; no need to compress the output.
-docker save --output sloshar.tar sloshar
+# NOTE: Finch does it's own compression; no need to compress the output.
+finch save --output sloshar.tar sloshar
 
 # Copy to Druyan
 scp sloshar.tar nknight@druyan:/tmp/sloshar.tar
