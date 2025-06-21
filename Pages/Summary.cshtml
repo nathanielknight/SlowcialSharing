@@ -10,10 +10,6 @@
 <h2 class="sitename" style="font-size: 200% !important; margin-top: 0.5em;"><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
 
 <div id="datecontrols" style="margin-bottom: 1em;">
-    @if (Model.selectedDate.HasValue)
-    {
-        <a href="/Summary/@Model.siteName" style="margin-left: 0.5em;" class="textmin">Go to latest</a>
-    }
     <div style="margin-bottom: 0.5em;">
         @if (Model.navigationDates.PreviousDate.HasValue)
         {
@@ -49,6 +45,13 @@
     to
     <span id="endTime" data-datetime=@DateTimeISO(@Model.summary.endTime)>@Model.summary.endTime</span>
 </p>
+
+@if (Model.selectedDate.HasValue)
+{
+    <p class="textmin">
+        <a href="/Summary/@Model.siteName">Go to latest</a>
+    </p>
+}
 
 @if (@Model.summary.items is null)
 {
