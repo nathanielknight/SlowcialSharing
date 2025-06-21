@@ -10,16 +10,29 @@
 <h2 class="sitename" style="font-size: 200% !important; margin-top: 0.5em;"><a href="@Model.site.HomePageUrl">@Model.site.Name</a></h2>
 
 <div id="datecontrols" style="margin-bottom: 1em;">
-    <form method="get" style="display: inline-block;">
-        <label for="date" style="margin-right: 0.5em;">View links for:</label>
-        <input type="date" id="date" name="date" value="@(Model.selectedDate?.ToString("yyyy-MM-dd") ?? "")" 
-               style="margin-right: 0.5em;" />
-        <button type="submit">Go</button>
-        @if (Model.selectedDate.HasValue)
+    @if (Model.selectedDate.HasValue)
+    {
+        <a href="/Summary/@Model.siteName" style="margin-left: 0.5em;" class="textmin">Go to latest</a>
+    }
+    <div style="margin-bottom: 0.5em;">
+        @if (Model.navigationDates.PreviousDate.HasValue)
         {
-            <a href="/Summary/@Model.siteName" style="margin-left: 0.5em;" class="textmin">Go to latest</a>
+            <a href="/Summary/@Model.siteName?date=@Model.navigationDates.PreviousDate.Value.ToString("yyyy-MM-dd")" 
+               style="margin-right: 0.5em;" class="button">← Previous</a>
         }
-    </form>
+        |
+        <form method="get" style="display: inline-block;">
+            <input type="date" id="date" name="date" value="@(Model.selectedDate?.ToString("yyyy-MM-dd") ?? "")" 
+                   style="margin-right: 0.5em;" />
+            <button type="submit">Go To Date</button>
+        </form>
+        |
+        @if (Model.navigationDates.NextDate.HasValue)
+        {
+            <a href="/Summary/@Model.siteName?date=@Model.navigationDates.NextDate.Value.ToString("yyyy-MM-dd")" 
+               style="margin-right: 0.5em;" class="button">Next →</a>
+        }
+    </div>
 </div>
 
 <p class="textmin">
