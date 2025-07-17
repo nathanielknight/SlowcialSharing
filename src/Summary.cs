@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SlowcialSharing.Data;
 using SlowcialSharing.Schedule;
 
@@ -18,17 +19,22 @@ public class SummaryService
     {
         (DateTimeOffset startTime, DateTimeOffset endTime) = CutOffs(date);
         _logger.LogInformation($"Finding {site.Name} items between {startTime} and {endTime}");
-        // TODO: replace this with a SQL query to avoid loading the whole table.
+        
+        // Convert DateTimeOffset to SQLite string format for lexicographic comparison
+        var startTimeString = startTime.ToString("yyyy-MM-dd HH:mm:sszzz");
+        var endTimeString = endTime.ToString("yyyy-MM-dd HH:mm:sszzz");
+        
+        // Use raw SQL with string comparison for efficient date filtering in SQLite
         var items = _context.Items
-            .Where(i =>
-                i.Site == site
-                && i.Score != null
-            ).AsEnumerable()
-            .Where(i =>
-                i.PubDate >= startTime
-                && i.PubDate < endTime
-            )
-            .OrderByDescending(i => (i.Score, i.PubDate));
+            .FromSqlRaw(@"
+                SELECT * FROM Items 
+                WHERE SiteId = {0} 
+                  AND Score IS NOT NULL 
+                  AND PubDate >= {1} 
+                  AND PubDate < {2}
+                ORDER BY Score DESC, PubDate DESC", 
+                site.SiteId, startTimeString, endTimeString);
+                
         if (items.Count() > 0)
         {
             _logger.LogInformation($"Found {items.Count()} {site.Name} items where {startTime} < pubdate < {endTime}");
