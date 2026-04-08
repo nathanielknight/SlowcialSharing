@@ -1,0 +1,4 @@
+# file: /Users/nathanielknight/projects/slowcialsharing/fetcher/fetcher.py
+# hypothesis_version: 6.151.12
+
+['%Y-%m-%d %H:%M:%S', '(\\d+)', '..', 'DATABASE_PATH', 'Done.', 'SELECT * FROM sites', 'User-Agent', '\\bcomment\\b', '__main__', 'comments', 'comments_link', 'div', 'item', 'key', 'link', 'lobste.rs', 'lxml', 'news.ycombinator.com', 'pubDate', 'pub_date', 'rss_url', 'schema.sql', 'site_id', 'site_name', 'slowcial.db', 'span.score', 'title']

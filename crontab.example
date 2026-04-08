@@ -1,0 +1,2 @@
+# Run the fetcher every hour
+0 * * * * cd /path/to/slowcialsharing/fetcher && DATABASE_PATH=/path/to/slowcial.db uv run python fetcher.py
