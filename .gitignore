@@ -1,5 +1,5 @@
-obj/
-bin/
-artifacts
-
+web/target/
+fetcher/.venv/
+__pycache__/
+*.pyc
 *.db

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }} - SlowcialSharing</title>
+    <link rel="stylesheet" href="/static/css/site.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐌</text></svg>">
+</head>
+<body>
+    <header>
+        <a href="/"><h1>Slowcial Sharing</h1></a>
+        <a href="/about">About</a>
+    </header>
+    <p class="textmin">Time-delayed mirrors of social news sites.</p>
+    <main role="main">
+        {% block content %}{% endblock %}
+    </main>
+    <footer style="padding-top: 3em;">
+        A project by <a href="https://nathanielknight.ca">Nat Knight</a> ♘
+    </footer>
+    <script src="/static/js/formatDates.js"></script>
+</body>
+</html>

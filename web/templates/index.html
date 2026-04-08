@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<ul id="sitelist">
+    {% for site in sites %}
+    <a class="sitename" href="/summary/{{ site.name }}"><li>{{ site.name }}</li></a>
+    {% endfor %}
+</ul>
+{% endblock %}

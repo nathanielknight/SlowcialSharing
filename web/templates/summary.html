@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="sitename" style="font-size: 200% !important; margin-top: 0.5em;"><a href="{{ site.homepage_url }}">{{ site.name }}</a></h2>
+
+<div id="datecontrols" style="margin-bottom: 1em;">
+    <div style="margin-bottom: 0.5em;">
+        {% if let Some(prev) = previous_date %}
+        <a href="/summary/{{ site.name }}?date={{ prev }}" style="margin-right: 0.5em;" class="button">← Previous</a>
+        {% endif %}
+        |
+        <form method="get" style="display: inline-block;">
+            <input type="date" id="date" name="date" value="{{ selected_date.as_deref().unwrap_or("") }}" style="margin-right: 0.5em;" />
+            <button type="submit">Go To Date</button>
+        </form>
+        |
+        {% if let Some(nxt) = next_date %}
+        <a href="/summary/{{ site.name }}?date={{ nxt }}" style="margin-right: 0.5em;" class="button">Next →</a>
+        {% endif %}
+    </div>
+</div>
+
+<p class="textmin">
+    {% if let Some(d) = selected_date %}
+    Showing summary for {{ d }} |
+    {% else %}
+    Current summary |
+    {% endif %}
+    From
+    <span id="startTime" data-datetime="{{ start_time_iso }}">{{ start_time }}</span>
+    to
+    <span id="endTime" data-datetime="{{ end_time_iso }}">{{ end_time }}</span>
+</p>
+
+{% if let Some(_d) = selected_date %}
+<p class="textmin">
+    <a href="/summary/{{ site.name }}">Go to latest</a>
+</p>
+{% endif %}
+
+{% if items.is_empty() %}
+<p>No items for {{ site.name }} yet.</p>
+{% else %}
+<ul style="margin-top: 2.4em;">
+    {% for item in items %}
+    <li class="item">
+        <p style="font-size: 110%"><a href="{{ item.link }}">{{ item.title }}</a></p>
+        <p class="textmin"><a href="{{ item.domain() }}">{{ item.domain() }}</a></p>
+        <p class="textmin">
+            {{ item.score.unwrap_or(0) }} points
+            | <a href="{{ item.comments_link }}">{{ item.comments.unwrap_or(0) }} comments</a>
+            | <span data-datetime="{{ item.pub_date_iso() }}">{{ item.pub_date }}</span>
+        </p>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

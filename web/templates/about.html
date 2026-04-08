@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<p>
+    Slowcial Sharing subscribes to the RSS feeds of social link sharing sites and
+    presents their content one day at a time with a short delay.
+    This lets you keep up with things as they're shared, but without the
+    addictive dopamine hit that you get from subscribing in real time: the page only
+    updates once a day, so there's no temptation to sit and refresh it.
+</p>
+
+<p>
+    Sites are checked for new shared links every hour; link scores and comment
+    counts are saved 24 hours after the link is posted. A new batch of links is
+    presented every midnight UTC.
+</p>
+
+<details>
+<summary>
+    <strong>Last Update:</strong>
+    <span data-datetime="{{ last_update_iso }}">{{ last_update }}</span>
+</summary>
+<p class="textmin">When the current summaries appeared.</p>
+</details>
+
+<details>
+<summary>
+    <strong>Next Update:</strong>
+    <span data-datetime="{{ next_update_iso }}">{{ next_update }}</span>
+</summary>
+<p class="textmin">When new links will drop.</p>
+</details>
+
+<details>
+<summary>
+    <strong>Summary Start:</strong>
+    <span data-datetime="{{ summary_start_iso }}">{{ summary_start }}</span>
+</summary>
+<p class="textmin">When the currently published links started appearing.</p>
+</details>
+
+<details>
+<summary>
+    <strong>Summary End:</strong>
+    <span data-datetime="{{ summary_end_iso }}">{{ summary_end }}</span>
+</summary>
+<p class="textmin">The cutoff for links that are currently published.</p>
+</details>
+{% endblock %}
