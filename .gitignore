@@ -2,4 +2,4 @@ web/target/
 fetcher/.venv/
 __pycache__/
 *.pyc
-*.db
+ss-app.db
