@@ -57,8 +57,7 @@ fn iso(dt: &DateTime<Utc>) -> String {
     dt.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string()
 }
 
-fn last_update() -> DateTime<Utc> {
-    let now = Utc::now();
+fn last_update(now: DateTime<Utc>) -> DateTime<Utc> {
     now.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc()
 }
 
@@ -89,7 +88,7 @@ async fn summary(
 
     let (start_time, end_time) = match parsed_date {
         Some(d) => db::date_summary_bounds(d),
-        None => db::default_summary_bounds(),
+        None => db::default_summary_bounds(Utc::now()),
     };
 
     let items = db::get_summary_items(&conn, site.site_id, &start_time, &end_time).unwrap_or_default();
@@ -110,7 +109,7 @@ async fn summary(
         None
     };
 
-    let lu = last_update();
+    let lu = last_update(Utc::now());
     let tmpl = SummaryTemplate {
         title: site.name.clone(),
         site,
@@ -128,9 +127,9 @@ async fn summary(
 }
 
 async fn about() -> impl IntoResponse {
-    let lu = last_update();
+    let lu = last_update(Utc::now());
     let nu = lu + chrono::Duration::days(1);
-    let (ss, se) = db::default_summary_bounds();
+    let (ss, se) = db::default_summary_bounds(Utc::now());
     let tmpl = AboutTemplate {
         title: "About".into(),
         last_update: lu,
@@ -165,4 +164,42 @@ async fn main() {
     println!("Listening on {addr}");
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::TimeZone;
+    use proptest::prelude::*;
+
+    #[test]
+    fn test_last_update_never_panics() {
+        let cases = vec![
+            Utc.with_ymd_and_hms(1970, 1, 1, 0, 0, 0).unwrap(),
+            Utc.with_ymd_and_hms(2000, 2, 29, 23, 59, 59).unwrap(),
+            Utc.with_ymd_and_hms(9999, 12, 31, 23, 59, 59).unwrap(),
+            Utc.with_ymd_and_hms(2024, 6, 15, 12, 30, 45).unwrap(),
+        ];
+        for now in cases {
+            let result = last_update(now);
+            assert_eq!(result.time(), chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap());
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn test_last_update_proptest(
+            y in 1970i32..9999,
+            m in 1u32..=12,
+            d in 1u32..=28,
+            h in 0u32..=23,
+            min in 0u32..=59,
+            s in 0u32..=59,
+        ) {
+            let now = Utc.with_ymd_and_hms(y, m, d, h, min, s).unwrap();
+            let result = last_update(now);
+            prop_assert_eq!(result.time(), chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap());
+            prop_assert_eq!(result.date_naive(), now.date_naive());
+        }
+    }
 }

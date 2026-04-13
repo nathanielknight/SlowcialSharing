@@ -71,8 +71,7 @@ pub fn get_site_by_name(conn: &Connection, name: &str) -> rusqlite::Result<Optio
 
 /// Returns (start_time, end_time) for the default summary view.
 /// Default: items from 2 days ago to 1 day ago (UTC midnight boundaries).
-pub fn default_summary_bounds() -> (DateTime<Utc>, DateTime<Utc>) {
-    let now = Utc::now();
+pub fn default_summary_bounds(now: DateTime<Utc>) -> (DateTime<Utc>, DateTime<Utc>) {
     let today_midnight = now.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
     let end_time = today_midnight - chrono::Duration::days(1);
     let start_time = end_time - chrono::Duration::days(1);
@@ -163,9 +162,25 @@ mod tests {
 
     #[test]
     fn test_default_summary_bounds() {
-        let (start, end) = default_summary_bounds();
+        let (start, end) = default_summary_bounds(Utc::now());
         assert_eq!(end - start, chrono::Duration::days(1));
         assert!(end < Utc::now());
+    }
+
+    #[test]
+    fn test_default_summary_bounds_never_panics() {
+        // Test with various edge-case DateTimes
+        use chrono::TimeZone;
+        let cases = vec![
+            Utc.with_ymd_and_hms(1970, 1, 1, 0, 0, 0).unwrap(),
+            Utc.with_ymd_and_hms(2000, 2, 29, 23, 59, 59).unwrap(),
+            Utc.with_ymd_and_hms(9999, 12, 31, 23, 59, 59).unwrap(),
+            Utc.with_ymd_and_hms(2024, 6, 15, 12, 30, 45).unwrap(),
+        ];
+        for now in cases {
+            let (start, end) = default_summary_bounds(now);
+            assert_eq!(end - start, chrono::Duration::days(1));
+        }
     }
 
     #[test]
@@ -179,7 +194,7 @@ mod tests {
     #[test]
     fn test_get_summary_items_empty() {
         let conn = test_db();
-        let (start, end) = default_summary_bounds();
+        let (start, end) = default_summary_bounds(Utc::now());
         let items = get_summary_items(&conn, 1, &start, &end).unwrap();
         assert!(items.is_empty());
     }
@@ -241,6 +256,21 @@ mod tests {
             let (start, end) = date_summary_bounds(date);
             prop_assert_eq!((end - start).num_seconds(), 86400);
             prop_assert_eq!(end.format("%Y-%m-%d").to_string(), date.format("%Y-%m-%d").to_string());
+        }
+
+        #[test]
+        fn test_default_summary_bounds_proptest(
+            y in 1970i32..9999,
+            m in 1u32..=12,
+            d in 1u32..=28,
+            h in 0u32..=23,
+            min in 0u32..=59,
+            s in 0u32..=59,
+        ) {
+            use chrono::TimeZone;
+            let now = Utc.with_ymd_and_hms(y, m, d, h, min, s).unwrap();
+            let (start, end) = default_summary_bounds(now);
+            prop_assert_eq!((end - start).num_seconds(), 86400);
         }
 
         #[test]
