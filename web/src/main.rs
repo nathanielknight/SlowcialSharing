@@ -53,6 +53,11 @@ struct AboutTemplate {
     summary_end_iso: String,
 }
 
+fn internal_error(msg: &str) -> (StatusCode, Html<String>) {
+    eprintln!("Internal error: {msg}");
+    (StatusCode::INTERNAL_SERVER_ERROR, Html("Internal server error".to_string()))
+}
+
 fn iso(dt: &DateTime<Utc>) -> String {
     dt.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string()
 }
@@ -62,10 +67,16 @@ fn last_update(now: DateTime<Utc>) -> DateTime<Utc> {
 }
 
 async fn index(State(pool): State<DbPool>) -> impl IntoResponse {
-    let conn = pool.lock().unwrap();
+    let conn = match pool.lock() {
+        Ok(c) => c,
+        Err(e) => return internal_error(&format!("DB lock: {e}")),
+    };
     let sites = db::get_sites(&conn).unwrap_or_default();
     let tmpl = IndexTemplate { title: "Slowcial Sharing".into(), sites };
-    Html(tmpl.render().unwrap())
+    match tmpl.render() {
+        Ok(html) => (StatusCode::OK, Html(html)),
+        Err(e) => internal_error(&format!("Template render: {e}")),
+    }
 }
 
 #[derive(serde::Deserialize)]
@@ -78,10 +89,14 @@ async fn summary(
     Path(site_name): Path<String>,
     Query(query): Query<SummaryQuery>,
 ) -> impl IntoResponse {
-    let conn = pool.lock().unwrap();
-    let site = match db::get_site_by_name(&conn, &site_name).unwrap() {
-        Some(s) => s,
-        None => return (StatusCode::NOT_FOUND, Html("Site not found".to_string())),
+    let conn = match pool.lock() {
+        Ok(c) => c,
+        Err(e) => return internal_error(&format!("DB lock: {e}")),
+    };
+    let site = match db::get_site_by_name(&conn, &site_name) {
+        Ok(Some(s)) => s,
+        Ok(None) => return (StatusCode::NOT_FOUND, Html("Site not found".to_string())),
+        Err(e) => return internal_error(&format!("DB query: {e}")),
     };
 
     let parsed_date: Option<NaiveDate> = query.date.as_ref().and_then(|d| d.parse().ok());
@@ -123,7 +138,10 @@ async fn summary(
         next_date,
         last_update_iso: iso(&lu),
     };
-    (StatusCode::OK, Html(tmpl.render().unwrap()))
+    match tmpl.render() {
+        Ok(html) => (StatusCode::OK, Html(html)),
+        Err(e) => internal_error(&format!("Template render: {e}")),
+    }
 }
 
 async fn about() -> impl IntoResponse {
@@ -141,7 +159,10 @@ async fn about() -> impl IntoResponse {
         summary_start_iso: iso(&ss),
         summary_end_iso: iso(&se),
     };
-    Html(tmpl.render().unwrap())
+    match tmpl.render() {
+        Ok(html) => (StatusCode::OK, Html(html)),
+        Err(e) => internal_error(&format!("Template render: {e}")),
+    }
 }
 
 pub fn build_router(conn: Connection) -> Router {
