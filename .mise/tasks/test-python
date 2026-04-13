@@ -1,0 +1,4 @@
+#!/bin/bash
+#MISE description="Run Python unit tests"
+set -e
+cd fetcher && uv run pytest tests/ -v

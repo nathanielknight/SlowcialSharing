@@ -1,0 +1,4 @@
+#!/bin/bash
+#MISE description="Run Rust unit tests"
+set -e
+cd web && cargo test

@@ -1,0 +1,4 @@
+#!/bin/bash
+#MISE description="Run all tests"
+#MISE depends=["test-rust", "test-python", "test-integration"]
+echo "All tests passed!"
