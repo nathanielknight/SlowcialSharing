@@ -1,9 +1,21 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "httpx>=0.27",
+#     "beautifulsoup4>=4.12",
+#     "lxml>=5.0",
+# ]
+# ///
 """Fetcher script for SlowcialSharing - fetches RSS feeds and scores."""
 
 import os
+import random
 import re
+import pathlib
 import sqlite3
 import sys
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 from html import unescape
@@ -14,6 +26,9 @@ from bs4 import BeautifulSoup
 USER_AGENT = "SlowcialSharing Scraper"
 HEADERS = {"User-Agent": USER_AGENT}
 
+SCHEMA_PATH = pathlib.Path(__file__).parent.parent / "schema.sql"
+assert SCHEMA_PATH.exists()
+
 
 def get_db(path: str | None = None) -> sqlite3.Connection:
     db_path = path or os.environ.get("DATABASE_PATH", "slowcial.db")
@@ -23,8 +38,7 @@ def get_db(path: str | None = None) -> sqlite3.Connection:
 
 
 def init_db(conn: sqlite3.Connection) -> None:
-    schema_path = os.path.join(os.path.dirname(__file__), "..", "schema.sql")
-    with open(schema_path) as f:
+    with SCHEMA_PATH.open() as f:
         conn.executescript(f.read())
 
 
@@ -156,6 +170,13 @@ def fetch_item_details(conn: sqlite3.Connection, client: httpx.Client) -> None:
                 (score, comments, row["key"]),
             )
             conn.commit()
+            time.sleep(10 + random.random() * 100)
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                print(f"Rate limited fetching {row['key']}, waiting 60s...", file=sys.stderr)
+                time.sleep(60)
+            else:
+                print(f"Error fetching details for {row['key']}: {e}", file=sys.stderr)
         except Exception as e:
             print(f"Error fetching details for {row['key']}: {e}", file=sys.stderr)
 

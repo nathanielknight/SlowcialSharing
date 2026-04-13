@@ -3,3 +3,4 @@ fetcher/.venv/
 __pycache__/
 *.pyc
 *.db
+.hypothesis
