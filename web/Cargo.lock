@@ -1069,10 +1069,13 @@ dependencies = [
  "askama",
  "axum",
  "chrono",
+ "http-body-util",
+ "hyper",
  "proptest",
  "rusqlite",
  "serde",
  "tokio",
+ "tower",
  "tower-http",
  "url",
 ]
