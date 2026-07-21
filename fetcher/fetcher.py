@@ -26,6 +26,11 @@ from bs4 import BeautifulSoup
 USER_AGENT = "SlowcialSharing Scraper"
 HEADERS = {"User-Agent": USER_AGENT}
 
+# Delay between detail-page fetches, to stay polite to the scraped sites.
+DETAIL_FETCH_MIN_DELAY = 10.0
+DETAIL_FETCH_MAX_DELAY = 110.0
+RATE_LIMIT_DELAY = 60.0
+
 SCHEMA_PATH = pathlib.Path(__file__).parent.parent / "schema.sql"
 assert SCHEMA_PATH.exists()
 
@@ -131,8 +136,11 @@ def fetch_lobsters_details(url: str, client: httpx.Client) -> tuple[int, int]:
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "lxml")
 
+    # Lobsters renders the score in div.voters > div.score; older markup put it
+    # in the a.upvoter text, so fall back to that.
     score = 0
-    score_node = soup.select_one("div.story_liner div.voters a.upvoter")
+    score_node = soup.select_one("div.story_liner div.voters div.score") \
+        or soup.select_one("div.story_liner div.voters a.upvoter")
     if score_node:
         try:
             score = int(score_node.get_text().strip())
@@ -170,11 +178,12 @@ def fetch_item_details(conn: sqlite3.Connection, client: httpx.Client) -> None:
                 (score, comments, row["key"]),
             )
             conn.commit()
-            time.sleep(10 + random.random() * 100)
+            delay = DETAIL_FETCH_MIN_DELAY + random.random() * (DETAIL_FETCH_MAX_DELAY - DETAIL_FETCH_MIN_DELAY)
+            time.sleep(delay)
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 429:
-                print(f"Rate limited fetching {row['key']}, waiting 60s...", file=sys.stderr)
-                time.sleep(60)
+                print(f"Rate limited fetching {row['key']}, waiting {RATE_LIMIT_DELAY}s...", file=sys.stderr)
+                time.sleep(RATE_LIMIT_DELAY)
             else:
                 print(f"Error fetching details for {row['key']}: {e}", file=sys.stderr)
         except Exception as e:

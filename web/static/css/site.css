@@ -42,11 +42,15 @@ a:hover { text-decoration-style: dotted}
 details {
   margin: 1em 0;
   padding: 0.6em 0.4em;
-  background-color: #111;
+  background-color: #eee;
   p {margin: 0.5em 0 0;}
   strong { display: inline-block; width: 8em;}
   span {display: inline-block;}
-  
+
+}
+
+@media (prefers-color-scheme: dark) {
+  details { background-color: #111; }
 }
 
 header {

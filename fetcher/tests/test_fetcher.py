@@ -13,6 +13,7 @@ from hypothesis import given, strategies as st
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+import fetcher
 from fetcher import (
     parse_rss,
     parse_rss_date,
@@ -21,6 +22,14 @@ from fetcher import (
     fetch_lobsters_details,
     fetch_item_details,
 )
+
+
+@pytest.fixture
+def no_fetch_delay(monkeypatch):
+    """Zero out the politeness delays so tests don't sleep."""
+    monkeypatch.setattr(fetcher, "DETAIL_FETCH_MIN_DELAY", 0.0)
+    monkeypatch.setattr(fetcher, "DETAIL_FETCH_MAX_DELAY", 0.0)
+    monkeypatch.setattr(fetcher, "RATE_LIMIT_DELAY", 0.0)
 
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "schema.sql")
 
@@ -166,6 +175,17 @@ LOBSTERS_PAGE = """
 </body></html>
 """
 
+# Current lobste.rs markup: the upvote arrow is an empty <a> and the score
+# lives in a separate div.score element.
+LOBSTERS_PAGE_DIV_SCORE = """
+<html><body>
+<div class="story_liner">
+  <div class="voters"><a class="upvoter"></a><div class="score">23</div></div>
+</div>
+<div class="comment">comment 1</div>
+</body></html>
+"""
+
 
 class TestFetchDetails:
     @respx.mock
@@ -193,7 +213,19 @@ class TestFetchDetails:
         assert comments == 2  # 3 divs - 1 for comment box
 
     @respx.mock
-    def test_fetch_item_details_updates_db(self):
+    def test_lobsters_details_div_score_markup(self):
+        respx.get("https://lobste.rs/s/test2").mock(
+            return_value=httpx.Response(200, text=LOBSTERS_PAGE_DIV_SCORE)
+        )
+        with httpx.Client() as client:
+            score, comments = fetch_lobsters_details(
+                "https://lobste.rs/s/test2", client
+            )
+        assert score == 23
+        assert comments == 0
+
+    @respx.mock
+    def test_fetch_item_details_updates_db(self, no_fetch_delay):
         conn = make_db()
         old_date = (datetime.now(timezone.utc) - timedelta(days=2)).strftime(
             "%Y-%m-%d %H:%M:%S"
@@ -217,7 +249,7 @@ class TestFetchDetails:
         assert row["comments"] == 2
 
     @respx.mock
-    def test_skips_recent_items(self):
+    def test_skips_recent_items(self, no_fetch_delay):
         conn = make_db()
         recent_date = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         conn.execute(
