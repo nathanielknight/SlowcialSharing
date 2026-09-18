@@ -2,7 +2,7 @@
 {% block content %}
 <ul id="sitelist">
     {% for site in sites %}
-    <a class="sitename" href="/summary/{{ site.name }}"><li>{{ site.name }}</li></a>
+    <li><a class="sitename" href="/summary/{{ site.name }}">{{ site.name }}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}

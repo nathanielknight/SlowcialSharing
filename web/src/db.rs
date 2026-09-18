@@ -24,7 +24,8 @@ pub struct Item {
 impl Item {
     pub fn domain(&self) -> String {
         url::Url::parse(&self.link)
-            .map(|u| format!("http://{}", u.host_str().unwrap_or("")))
+            .ok()
+            .and_then(|u| u.host_str().map(|h| format!("{}://{}", u.scheme(), h)))
             .unwrap_or_default()
     }
 
@@ -35,6 +36,9 @@ impl Item {
 
 pub fn init_db(path: &str) -> rusqlite::Result<Connection> {
     let conn = Connection::open(path)?;
+    // The fetcher writes to the same database file; wait instead of failing
+    // with SQLITE_BUSY when a write is in progress.
+    conn.busy_timeout(std::time::Duration::from_secs(5))?;
     conn.execute_batch(include_str!("../../schema.sql"))?;
     Ok(conn)
 }
@@ -122,12 +126,15 @@ pub fn has_items_for_date(conn: &Connection, site_id: i64, date: NaiveDate) -> r
     let (start, end) = date_summary_bounds(date);
     let start_str = start.format("%Y-%m-%d %H:%M:%S").to_string();
     let end_str = end.format("%Y-%m-%d %H:%M:%S").to_string();
-    let count: i64 = conn.query_row(
-        "SELECT COUNT(*) FROM items WHERE site_id = ?1 AND pub_date >= ?2 AND pub_date < ?3",
+    // Match get_summary_items: only scored items appear on a summary page, so
+    // only scored items should make a date navigable.
+    let exists: bool = conn.query_row(
+        "SELECT EXISTS(SELECT 1 FROM items \
+         WHERE site_id = ?1 AND score IS NOT NULL AND pub_date >= ?2 AND pub_date < ?3)",
         params![site_id, start_str, end_str],
         |row| row.get(0),
     )?;
-    Ok(count > 0)
+    Ok(exists)
 }
 
 #[cfg(test)]
@@ -244,7 +251,17 @@ mod tests {
             pub_date: Utc::now(), comments_link: "c".into(),
             score: Some(1), comments: Some(0), site_id: 1,
         };
-        assert_eq!(item.domain(), "http://example.com");
+        assert_eq!(item.domain(), "https://example.com");
+    }
+
+    #[test]
+    fn test_item_domain_unparseable_link() {
+        let item = Item {
+            key: "k".into(), title: "t".into(), link: "not a url".into(),
+            pub_date: Utc::now(), comments_link: "c".into(),
+            score: Some(1), comments: Some(0), site_id: 1,
+        };
+        assert_eq!(item.domain(), "");
     }
 
     use proptest::prelude::*;
@@ -296,5 +313,26 @@ mod tests {
             params!["k", "t", "https://example.com", "2024-01-14 12:00:00", "c", 1, 0, 1],
         ).unwrap();
         assert!(has_items_for_date(&conn, 1, date).unwrap());
+    }
+
+    #[test]
+    fn test_has_items_for_date_ignores_unscored_items() {
+        let conn = test_db();
+        let date = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        conn.execute(
+            "INSERT INTO items (key, title, link, pub_date, comments_link, score, comments, site_id) \
+             VALUES (?1, ?2, ?3, ?4, ?5, NULL, NULL, ?6)",
+            params!["k", "t", "https://example.com", "2024-01-14 12:00:00", "c", 1],
+        ).unwrap();
+        assert!(!has_items_for_date(&conn, 1, date).unwrap());
+    }
+
+    #[test]
+    fn test_default_bounds_match_yesterdays_date_bounds() {
+        // The default summary view must be the same window as ?date=<yesterday>,
+        // which is what the prev/next navigation assumes.
+        let now = Utc::now();
+        let yesterday = now.date_naive() - chrono::Duration::days(1);
+        assert_eq!(default_summary_bounds(now), date_summary_bounds(yesterday));
     }
 }

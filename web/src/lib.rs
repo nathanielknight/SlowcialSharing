@@ -109,7 +109,9 @@ async fn summary(
     let items = db::get_summary_items(&conn, site.site_id, &start_time, &end_time).unwrap_or_default();
 
     let today = Utc::now().date_naive();
-    let target_date = parsed_date.unwrap_or(today);
+    // The default view shows the window ending at yesterday's midnight, i.e.
+    // the same window as ?date=<yesterday>, so navigation must anchor there.
+    let target_date = parsed_date.unwrap_or(today - chrono::Duration::days(1));
     let prev = target_date - chrono::Duration::days(1);
     let next = target_date + chrono::Duration::days(1);
 

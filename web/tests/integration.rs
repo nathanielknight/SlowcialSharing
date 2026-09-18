@@ -103,6 +103,41 @@ async fn test_summary_missing_site_returns_404() {
 }
 
 #[tokio::test]
+async fn test_default_view_previous_link_goes_to_earlier_window() {
+    // The default view shows the window ending at yesterday's midnight (the
+    // same as ?date=<yesterday>), so its "Previous" link must point to the
+    // day before yesterday — not to a page showing the identical window.
+    let conn = Connection::open_in_memory().unwrap();
+    conn.execute_batch(include_str!("../../schema.sql")).unwrap();
+
+    let today = chrono::Utc::now().date_naive();
+    let in_default_window = (today - chrono::Duration::days(2)).format("%Y-%m-%d 12:00:00");
+    let in_previous_window = (today - chrono::Duration::days(3)).format("%Y-%m-%d 12:00:00");
+    for (key, pub_date) in [("cur", in_default_window), ("prev", in_previous_window)] {
+        conn.execute(
+            "INSERT INTO items (key, title, link, pub_date, comments_link, score, comments, site_id) \
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            params![key, "Title", "https://example.com", pub_date.to_string(), "c", 10, 1, 2],
+        )
+        .unwrap();
+    }
+    let app = slowcial_web::build_router(conn);
+
+    let (status, body) = get_body(app, "/summary/lobste.rs").await;
+    assert_eq!(status, StatusCode::OK);
+    let expected_prev = format!("?date={}", (today - chrono::Duration::days(2)).format("%Y-%m-%d"));
+    let same_window = format!("?date={}", (today - chrono::Duration::days(1)).format("%Y-%m-%d"));
+    assert!(
+        body.contains(&expected_prev),
+        "previous link should target {expected_prev}"
+    );
+    assert!(
+        !body.contains(&same_window),
+        "navigation must not link to {same_window}, which shows the same window as the default view"
+    );
+}
+
+#[tokio::test]
 async fn test_summary_no_items_for_date() {
     let conn = test_db_with_items();
     let app = slowcial_web::build_router(conn);
